@@ -10,6 +10,7 @@ import MoveBallTouch from './Move BallTouch';
 import MoveBallBiggner from './MoveBallBiggner';
 import SVGAnimation from './SVGAnimation';
 import ImageViewer2 from './ImageViewer&Header2';
+import TabBar from './TabBar';
 const Drawer = createDrawerNavigator();
 
 class index extends Component {
@@ -21,8 +22,9 @@ class index extends Component {
   render() {
     return (
       <Drawer.Navigator>
-        <Drawer.Screen name="ImageViewer2" component={ImageViewer2} />
         <Drawer.Screen name="SVGAnimation" component={SVGAnimation} />
+        <Drawer.Screen name="TabBar" component={TabBar} />
+        <Drawer.Screen name="ImageViewer2" component={ImageViewer2} />
         <Drawer.Screen name="InstaImagePreview" component={InstaImagePreview} />
         <Drawer.Screen name="AnimatedClock" component={AnimatedClock} />
         <Drawer.Screen name="AnimatedLoader" component={AnimatedLoader} />

@@ -1,11 +1,23 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, {Component} from 'react';
-import {View, Text, Animated, Easing, Button, StatusBar} from 'react-native';
+import {
+  View,
+  Text,
+  Animated,
+  Easing,
+  Button,
+  StatusBar,
+  Dimensions,
+} from 'react-native';
 import Svg, {Path, G} from 'react-native-svg';
 import {interpolate} from 'flubber'; // ES6
 import {tween, easing} from 'popmotion';
 import {modulo} from 'react-native-reanimated';
 // import {motion} from 'framer-motion';
+import * as shape from 'd3-shape';
+
+const {width} = Dimensions.get('window');
+const height = 64;
 
 class SVGAnimation extends Component {
   constructor(props) {
@@ -17,6 +29,26 @@ class SVGAnimation extends Component {
         'M0,288L6.7,256C13.3,224,27,160,40,138.7C53.3,117,67,139,80,128C93.3,117,107,75,120,80C133.3,85,147,139,160,181.3C173.3,224,187,256,200,272C213.3,288,227,288,240,288C253.3,288,267,288,280,272C293.3,256,307,224,320,224C333.3,224,347,256,360,229.3C373.3,203,387,117,400,101.3C413.3,85,427,139,440,149.3C453.3,160,467,128,480,117.3C493.3,107,507,117,520,149.3C533.3,181,547,235,560,256C573.3,277,587,267,600,229.3C613.3,192,627,128,640,122.7C653.3,117,667,171,680,160C693.3,149,707,75,720,53.3C733.3,32,747,64,760,96C773.3,128,787,160,800,170.7C813.3,181,827,171,840,181.3C853.3,192,867,224,880,240C893.3,256,907,256,920,224C933.3,192,947,128,960,133.3C973.3,139,987,213,1000,208C1013.3,203,1027,117,1040,80C1053.3,43,1067,53,1080,101.3C1093.3,149,1107,235,1120,234.7C1133.3,235,1147,149,1160,128C1173.3,107,1187,149,1200,176C1213.3,203,1227,213,1240,202.7C1253.3,192,1267,160,1280,122.7C1293.3,85,1307,43,1320,32C1333.3,21,1347,43,1360,74.7C1373.3,107,1387,149,1400,149.3C1413.3,149,1427,107,1433,85.3L1440,64L1440,0L1433.3,0C1426.7,0,1413,0,1400,0C1386.7,0,1373,0,1360,0C1346.7,0,1333,0,1320,0C1306.7,0,1293,0,1280,0C1266.7,0,1253,0,1240,0C1226.7,0,1213,0,1200,0C1186.7,0,1173,0,1160,0C1146.7,0,1133,0,1120,0C1106.7,0,1093,0,1080,0C1066.7,0,1053,0,1040,0C1026.7,0,1013,0,1000,0C986.7,0,973,0,960,0C946.7,0,933,0,920,0C906.7,0,893,0,880,0C866.7,0,853,0,840,0C826.7,0,813,0,800,0C786.7,0,773,0,760,0C746.7,0,733,0,720,0C706.7,0,693,0,680,0C666.7,0,653,0,640,0C626.7,0,613,0,600,0C586.7,0,573,0,560,0C546.7,0,533,0,520,0C506.7,0,493,0,480,0C466.7,0,453,0,440,0C426.7,0,413,0,400,0C386.7,0,373,0,360,0C346.7,0,333,0,320,0C306.7,0,293,0,280,0C266.7,0,253,0,240,0C226.7,0,213,0,200,0C186.7,0,173,0,160,0C146.7,0,133,0,120,0C106.7,0,93,0,80,0C66.7,0,53,0,40,0C26.7,0,13,0,7,0L0,0Z',
     };
   }
+
+  tabs = [
+    {
+      name: 'grid',
+    },
+    {
+      name: 'list',
+    },
+    {
+      name: 'repeat',
+    },
+    {
+      name: 'map',
+    },
+    {
+      name: 'user',
+    },
+  ];
+  tabWidth = width / this.tabs.length;
+  backgroundColor = 'lightblue';
 
   sc = new Animated.Value(0);
   svg = [
@@ -70,6 +102,43 @@ class SVGAnimation extends Component {
       });
     });
   };
+
+  getPath = () => {
+    const left = shape
+      .line()
+      .x((d) => d.x)
+      .y((d) => d.y)([
+      {x: 0, y: 0},
+      {x: 10, y: 0},
+    ]);
+    const tab = shape
+      .line()
+      .x((d) => d.x)
+      .y((d) => d.y)
+      .curve(shape.curveBasis)([
+      {x: width, y: 0},
+      {x: width + 5, y: 0},
+      {x: width + 10, y: 10},
+      {x: width + 15, y: height * 0.8},
+      {x: width + this.tabWidth - 15, y: height * 0.8},
+      {x: width + this.tabWidth - 10, y: 10},
+      {x: width + this.tabWidth - 5, y: 0},
+      {x: width + this.tabWidth, y: 0},
+    ]);
+    const right = shape
+      .line()
+      .x((d) => d.x)
+      .y((d) => d.y)([
+      {x: width + this.tabWidth, y: 0},
+      {x: width * 2, y: 0},
+      {x: width * 2, y: height},
+      {x: 0, y: height},
+      {x: 0, y: 0},
+    ]);
+    console.log(`${left} ${tab} ${right}`);
+    return `${left} ${tab} ${right}`;
+  };
+  d = this.getPath();
 
   componentDidMount = () => {
     this.animatingWave();
@@ -136,7 +205,17 @@ class SVGAnimation extends Component {
             />
           )}
         </Svg>
-        {/* <Svg height="40" viewBox="0 0 512 512" width="40"></Svg> */}
+        <Svg
+          width={width * 2}
+          {...{height}}
+          style={{
+            transform: [{translateX: -width}],
+            marginTop: 'auto',
+            bottom: 0,
+            position: 'absolute',
+          }}>
+          <Path fill={this.backgroundColor} d={this.d} />
+        </Svg>
       </View>
     );
   }

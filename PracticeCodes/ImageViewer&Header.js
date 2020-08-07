@@ -10,8 +10,10 @@ import {
   Dimensions,
 } from 'react-native';
 import {ScrollView, TouchableOpacity} from 'react-native-gesture-handler';
+import axios from 'axios';
 
 const height = Dimensions.get('screen').height;
+axios.defaults.baseURL = 'http://10.0.2.2:3000/';
 
 class App extends Component {
   constructor(props) {
@@ -19,8 +21,25 @@ class App extends Component {
     this.state = {
       selected: false,
       selecteduri: '',
+      data: [],
     };
   }
+
+  componentDidMount = () => {
+    console.log('starting');
+    axios
+      .get('users/getUploads')
+      .then((res) => {
+        console.log('in---------');
+        console.log(res.data);
+        this.setState({
+          data: res.data,
+        });
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
 
   yPos = new Animated.Value(0);
   scale = new Animated.Value(0);
@@ -123,8 +142,33 @@ class App extends Component {
                 },
               },
             ],
-            // {useNativeDriver: true},
+            {useNativeDriver: false},
           )}>
+          {this.state.data.map((u, i) => {
+            console.log(
+              `http://192.168.0.105:3000/uploads/${u.imgName}`,
+              '------->',
+            );
+            return (
+              <TouchableOpacity
+                onPress={() => {
+                  this.yPos.setValue(0);
+                  this.setState({
+                    selected: true,
+                    selecteduri: `http://192.168.0.105:3000/uploads/${u.imgName}`,
+                  });
+                  this.picScale();
+                }}>
+                <Image
+                  resizeMode="contain"
+                  style={{width: '100%', height: 250, marginTop: 20}}
+                  source={{
+                    uri: `http://192.168.0.105:3000/uploads/${u.imgName}`,
+                  }}
+                />
+              </TouchableOpacity>
+            );
+          })}
           <TouchableOpacity
             onPress={() => {
               this.yPos.setValue(0);
@@ -136,7 +180,8 @@ class App extends Component {
               this.picScale();
             }}>
             <Image
-              style={{width: '100%', height: 250, marginTop: 0}}
+              resizeMode="contain"
+              style={{width: '100%', height: 250, marginTop: 20}}
               source={{
                 uri:
                   'https://image.shutterstock.com/image-photo/bright-spring-view-cameo-island-260nw-1048185397.jpg',
@@ -153,6 +198,7 @@ class App extends Component {
               this.picScale();
             }}>
             <Image
+              resizeMode="contain"
               style={{width: '100%', height: 250, marginTop: 50}}
               source={{
                 uri:
@@ -170,6 +216,7 @@ class App extends Component {
               this.picScale();
             }}>
             <Image
+              resizeMode="contain"
               style={{width: '100%', height: 250, marginTop: 50}}
               source={{
                 uri:
@@ -187,6 +234,7 @@ class App extends Component {
               this.picScale();
             }}>
             <Image
+              resizeMode="contain"
               style={{width: '100%', height: 250, marginTop: 50}}
               source={{
                 uri:
@@ -209,11 +257,13 @@ class App extends Component {
               transform: [{translateY: this.yPos}],
             }}>
             <Image
+              resizeMode="contain"
               style={{
                 width: '100%',
                 height: 250,
                 marginTop: 50,
                 alignSelf: 'center',
+                backgroundColor: '#fff',
               }}
               source={{
                 uri: this.state.selecteduri,

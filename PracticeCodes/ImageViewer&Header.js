@@ -57,7 +57,7 @@ class App extends Component {
     onMoveShouldSetPanResponder: () => true,
     onPanResponderGrant: (e, gestureState) => {
       // console.log(this.yPos);
-      this.yPos.setOffset(this.yPos.__getValue());
+      // this.yPos.setOffset(this.yPos.__getValue());
     },
     onPanResponderMove: (e, gestureState) => {
       // if (gestureState.vy > 2 || gestureState.moveY > 500) {
@@ -98,7 +98,7 @@ class App extends Component {
           this.yPos.setValue(0);
         });
       }
-      this.yPos.flattenOffset();
+      // this.yPos.flattenOffset();
       console.log(gestureState);
     },
   });
@@ -193,16 +193,16 @@ class App extends Component {
               this.setState({
                 selected: true,
                 selecteduri:
-                  'https://analyticsindiamag.com/wp-content/uploads/2019/11/Image-Processing-Libraries.jpg',
+                  'https://www.roadrunnerrecords.com/sites/g/files/g2000005056/f/Sample-image10-highres.jpg',
               });
               this.picScale();
             }}>
             <Image
-              resizeMode="contain"
+              resizeMode="cover"
               style={{width: '100%', height: 250, marginTop: 50}}
               source={{
                 uri:
-                  'https://analyticsindiamag.com/wp-content/uploads/2019/11/Image-Processing-Libraries.jpg',
+                  'https://www.roadrunnerrecords.com/sites/g/files/g2000005056/f/Sample-image10-highres.jpg',
               }}
             />
           </TouchableOpacity>

@@ -34,7 +34,7 @@ export default class ImageShadow extends Component {
               width: '100%',
               height: 500,
               position: 'absolute',
-              transform: [{translateY: 20}],
+              transform: [{translateY: 10}],
             }}
             blurRadius={1}
             resizeMode="contain"

@@ -19,27 +19,37 @@ import ImageUpload from './ImageUpload';
 import AnimatedHeader from './AnimatedHeader';
 import ImageViewer2 from './ImageViewer&Header2';
 import TabBar from './TabBar';
+import FlatlistScreen from './FlatlistScreen';
 import CircularProgress from './CircularProgress';
 import ImageShadow from './ImageShadow';
 import Animated from 'react-native-reanimated';
 import {createStackNavigator} from '@react-navigation/stack';
 
+import {createSharedElementStackNavigator} from 'react-navigation-shared-element';
+const Stack2 = createSharedElementStackNavigator();
+
+// Screens
+import MainScreen from './ShareMainScreen';
+import DetailScreen from './ShareDetailScreen';
+
 const Stack = createStackNavigator();
 const Drawer = createDrawerNavigator();
 
 const list = [
+  'InstaImagePreview',
+  'FlatlistScreen',
+  'SVGAnimation',
   'ImageShadow',
   'CircularProgress',
-  'SVGAnimation',
   'ImageViewer',
   'AnimatedHeader',
   'TabBar',
   'ImageViewer2',
   'AnimatedClock',
-  'InstaImagePreview',
   'AnimatedLoader',
   'InstaImageZoom',
   'MoveBallTouch',
+  'Share',
 ];
 
 const getScreen = (u, props) => {
@@ -65,6 +75,68 @@ const getScreen = (u, props) => {
     return <InstaImageZoom {...props} />;
   } else if (u == 'MoveBallTouch') {
     return <MoveBallTouch {...props} />;
+  } else if (u == 'FlatlistScreen') {
+    return <FlatlistScreen {...props} />;
+  } else if (u == 'Share') {
+    return (
+      <Stack2.Navigator
+        initialRouteName="List"
+        screenOptions={{
+          headerShown: false,
+        }}>
+        <Stack2.Screen name="MainScreen" component={MainScreen} />
+        <Stack2.Screen
+          name="DetailScreen"
+          component={DetailScreen}
+          options={(navigation) => ({
+            headerBackTitleVisible: false,
+            cardStyleInterpolator: ({current: {prog}}) => {
+              return {
+                cardStyle: {
+                  opacity: prog,
+                },
+              };
+            },
+          })}
+          sharedElementsConfig={(route) => {
+            const {data} = route.params;
+            return [
+              {
+                id: `item.${data.id}.photo`,
+                animation: 'move',
+                resize: 'clip',
+                align: 'center-top',
+              },
+              {
+                id: `item.${data.id}.text`,
+                animation: 'fade',
+                resize: 'clip',
+                align: 'left-center',
+              },
+
+              {
+                id: `item.${data.id}.profilePic`,
+                animation: 'move',
+                resize: 'clip',
+                align: 'left-center',
+              },
+              {
+                id: `item.${data.id}.username`,
+                animation: 'fade',
+                resize: 'clip',
+                align: 'left-center',
+              },
+              {
+                id: `item.${data.id}.readtime`,
+                animation: 'fade',
+                resize: 'clip',
+                align: 'left-center',
+              },
+            ];
+          }}
+        />
+      </Stack2.Navigator>
+    );
   }
 };
 
@@ -161,6 +233,78 @@ export default () => {
               />
             );
           })}
+          <Drawer.Screen
+            name={'Shared'}
+            children={(props) => {
+              return (
+                <Animated.View
+                  style={{
+                    flex: 1,
+                    backgroundColor: 'white',
+                    borderRadius: borderRadius,
+                    transform: [{scale}, {rotateZ}, {translateX}],
+                  }}>
+                  <Stack.Navigator
+                    initialRouteName="List"
+                    screenOptions={{
+                      headerShown: false,
+                    }}>
+                    <Stack.Screen name="MainScreen" component={MainScreen} />
+                    <Stack.Screen
+                      name="DetailScreen"
+                      component={DetailScreen}
+                      options={(navigation) => ({
+                        headerBackTitleVisible: false,
+                        cardStyleInterpolator: ({current: {prog}}) => {
+                          return {
+                            cardStyle: {
+                              opacity: prog,
+                            },
+                          };
+                        },
+                      })}
+                      sharedElementsConfig={(route) => {
+                        const {data} = route.params;
+                        return [
+                          {
+                            id: `item.${data.id}.photo`,
+                            animation: 'move',
+                            resize: 'clip',
+                            align: 'center-top',
+                          },
+                          {
+                            id: `item.${data.id}.text`,
+                            animation: 'fade',
+                            resize: 'clip',
+                            align: 'left-center',
+                          },
+
+                          {
+                            id: `item.${data.id}.profilePic`,
+                            animation: 'move',
+                            resize: 'clip',
+                            align: 'left-center',
+                          },
+                          {
+                            id: `item.${data.id}.username`,
+                            animation: 'fade',
+                            resize: 'clip',
+                            align: 'left-center',
+                          },
+                          {
+                            id: `item.${data.id}.readtime`,
+                            animation: 'fade',
+                            resize: 'clip',
+                            align: 'left-center',
+                          },
+                        ];
+                      }}
+                    />
+                  </Stack.Navigator>
+                </Animated.View>
+              );
+            }}
+          />
         </Drawer.Navigator>
       </ImageBackground>
     </View>

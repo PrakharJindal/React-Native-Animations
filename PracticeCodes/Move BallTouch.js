@@ -8,21 +8,20 @@ class App extends Component {
     this.state = {};
   }
 
-  pan = new Animated.ValueXY();
+  position = new Animated.ValueXY();
   panResponder = PanResponder.create({
     onMoveShouldSetPanResponder: () => true,
     onPanResponderGrant: (e, gestureState) => {
-      console.log(this.pan.x);
-      this.pan.setOffset(this.pan.__getValue());
+      // console.log(this.pan.x);
+      // this.pan.setOffset(this.pan.__getValue());
     },
     onPanResponderMove: (e, gestureState) => {
       // console.log(this.pan);
       // console.log(gestureState.dx);
-      this.pan.x.setValue(gestureState.dx);
-      this.pan.y.setValue(gestureState.dy);
+      this.position.setValue({x: gestureState.moveX, y: gestureState.moveY});
     },
     onPanResponderRelease: () => {
-      this.pan.flattenOffset();
+      // this.pan.flattenOffset();
     },
   });
 
@@ -30,16 +29,7 @@ class App extends Component {
     return (
       <View>
         <Animated.View
-          style={{
-            transform: [
-              {
-                translateX: this.pan.x,
-              },
-              {
-                translateY: this.pan.y,
-              },
-            ],
-          }}
+          style={[this.position.getLayout()]}
           {...this.panResponder.panHandlers}>
           <View
             style={{

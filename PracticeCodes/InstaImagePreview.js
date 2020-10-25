@@ -12,22 +12,26 @@ import {
   Alert,
   StyleSheet,
   Image as Img,
+  FlatList,
 } from 'react-native';
 import {
-  ScrollView,
+  TouchableHighlight,
   TouchableOpacity,
-  FlatList,
-  PanGestureHandler,
 } from 'react-native-gesture-handler';
 import Image from 'react-native-auto-scale-image';
-import {BlurView} from 'expo-blur';
+import {BlurView} from '@react-native-community/blur';
+import Icon from 'react-native-vector-icons/SimpleLineIcons';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import Feather from 'react-native-vector-icons/Feather';
+
+const {width} = Dimensions.get('screen');
 
 const images = [
-  'https://image.shutterstock.com/image-photo/bright-spring-view-cameo-island-260nw-1048185397.jpg',
-  'https://analyticsindiamag.com/wp-content/uploads/2019/11/Image-Processing-Libraries.jpg',
+  'https://media.cntraveler.com/photos/5cb63a516b5c4d33c25ec158/master/w_4000,h_2667,c_limit/Zakynthos-Greece_GettyImages-626977447.jpg',
+  'https://randomwordgenerator.com/img/picture-generator/55e4d1414352ac14f1dc8460962e33791c3ad6e04e507441722a72dc944ccd_640.jpg',
   'https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885__340.jpg',
   'https://p.bigstockphoto.com/GeFvQkBbSLaMdpKXF1Zv_bigstock-Aerial-View-Of-Blue-Lakes-And--227291596.jpg',
-  'https://wallpapercave.com/wp/wp2608078.jpg',
+  'https://cdn.cheapism.com/images/011618_most_beautiful_views_in_the_world_sli.max-784x410_ZXOqfVp.jpg',
   'https://wallpaperaccess.com/full/138728.jpg',
   'https://images.unsplash.com/photo-1465572089651-8fde36c892dd?ixlib=rb-1.2.1&q=80&fm=jpg&crop=entropy&cs=tinysrgb',
   'https://i.pinimg.com/originals/f0/60/d4/f060d45d3047e8e307fcf41d97186fdf.jpg',
@@ -87,6 +91,12 @@ class App extends Component {
   };
 
   picScale = new Animated.Value(0);
+  picView = new Animated.Value(0);
+
+  componentDidMount() {
+    this.picView.setValue(0);
+    this.picScale.setValue(0);
+  }
 
   panResponder = PanResponder.create({
     onMoveShouldSetPanResponder: () => true,
@@ -97,13 +107,20 @@ class App extends Component {
           selected: true,
           selecteduri: uri,
         });
-        console.log('longPressed');
-        Animated.spring(this.picScale, {
-          toValue: 1,
-          useNativeDriver: true,
-          delay: 10,
-        }).start();
-      }, 100);
+        Animated.parallel([
+          Animated.timing(this.picView, {
+            toValue: 1,
+            useNativeDriver: true,
+            duration: 0,
+          }),
+          Animated.spring(this.picScale, {
+            toValue: 1,
+            useNativeDriver: true,
+            duration: 50,
+            easing: Easing.bounce,
+          }),
+        ]).start(() => {});
+      }, 50);
     },
     onPanResponderMove: (e, gestureState) => {
       // console.log(gestureState);
@@ -126,7 +143,12 @@ class App extends Component {
         console.log('like added');
       }
       clearTimeout(this.long_press_timeout);
-      Animated.timing(this.picScale, {
+      Animated.timing(this.picView, {
+        toValue: 0,
+        useNativeDriver: true,
+        // delay: 10,
+      }).start();
+      Animated.spring(this.picScale, {
         toValue: 0,
         useNativeDriver: true,
       }).start(
@@ -160,24 +182,66 @@ class App extends Component {
       inputRange: [0, 1],
       outputRange: [0.9, 1],
     });
+    const previewView = this.picView.interpolate({
+      inputRange: [0, 1],
+      outputRange: [0, 1],
+    });
     const previewOpacity = this.picScale.interpolate({
       inputRange: [0, 1],
-      outputRange: [0.5, 1],
+      outputRange: [0, 1],
     });
     return (
-      <View style={{flex: 1}}>
+      <View style={{flex: 1, overflow: 'hidden', backgroundColor: '#262626'}}>
         <FlatList
-          numColumns={2}
-          style={{alignSelf: 'center', alignContent: 'center'}}
+          numColumns={3}
+          contentContainerStyle={{marginHorizontal: 1}}
           data={images}
+          keyExtractor={(item, index) => {
+            return `${item}${index}`;
+          }}
+          ListHeaderComponent={() => {
+            return (
+              <View style={{paddingTop: 60}}>
+                <Img
+                  source={{
+                    uri:
+                      'https://randomwordgenerator.com/img/picture-generator/52e9d1474c56ab14f1dc8460962e33791c3ad6e04e507749772772d6944bc2_640.jpg',
+                  }}
+                  style={{
+                    width: width / 3.5,
+                    height: width / 3.5,
+                    borderRadius: width,
+                    margin: 10,
+                  }}
+                />
+                <View style={{margin: 20}}>
+                  <Text
+                    style={{
+                      color: '#E3E3E3',
+                      lineHeight: 22,
+                      fontSize: 15,
+                      fontWeight: 'bold',
+                    }}>
+                    Beautiful Views Of Nature
+                  </Text>
+                  <Text
+                    style={{color: '#E3E3E3', lineHeight: 22, fontSize: 15}}>
+                    We love everything this beautiful Earth has to offer! {'\n'}
+                    Tag us in your favorite displays of Mother Nature!
+                  </Text>
+                </View>
+              </View>
+            );
+          }}
           renderItem={({item}) => {
             return (
               <TouchableOpacity
+                activeOpacity={0.7}
                 onPress={() => {
                   console.log('pressed');
                 }}>
                 <Img
-                  style={{width: 150, height: 150, margin: 10}}
+                  style={{width: width / 3, height: width / 3, margin: 1}}
                   source={{
                     uri: item,
                   }}
@@ -189,81 +253,128 @@ class App extends Component {
           }}
         />
         {this.state.selected ? (
-          <BlurView
-            intensity={100}
-            style={{...StyleSheet.absoluteFill}}
-            tint="dark">
-            <Text
-              style={{
-                position: 'absolute',
-                top: this.state.likeY + this.state.likeYheight / 2,
-                left: this.state.likeX + this.state.likeXwidth / 2,
-                fontSize: 20,
-                zIndex: 99,
-                elevation: 10,
-              }}>
-              😀
-            </Text>
-            <Animated.View
-              style={{
-                backgroundColor: '#fff',
-                paddingTop: 20,
-                borderRadius: 10,
-                marginTop: 'auto',
-                marginBottom: 'auto',
-                marginLeft: 'auto',
-                marginRight: 'auto',
-                opacity: previewOpacity,
-                transform: [{scale: previewScale}],
-              }}>
-              <Image
+          <Animated.View
+            style={{
+              ...StyleSheet.absoluteFill,
+              opacity: previewOpacity,
+            }}>
+            <BlurView
+              style={{...StyleSheet.absoluteFill, zIndex: 0}}
+              blurAmount={1}
+              overlayColor="#00000060"
+              reducedTransparencyFallbackColor="white"
+              blurType="dark">
+              <Animated.View
                 style={{
-                  width: Dimensions.get('screen').width * 0.8,
-                }}
-                uri={this.state.selecteduri}
-              />
-              <View
-                style={{
-                  flexDirection: 'row',
-                  alignContent: 'space-around',
+                  backgroundColor: '#262626',
+                  paddingTop: 10,
+                  borderRadius: 10,
+                  marginTop: 'auto',
+                  marginBottom: 'auto',
+                  marginLeft: 'auto',
+                  marginRight: 'auto',
+                  opacity: previewOpacity,
+                  transform: [{scale: previewScale}],
                 }}>
-                <Text
-                  onLayout={this.handleMeasure('like', this.likeRef)}
-                  ref={this.likeRef}
-                  // allowFontScaling
+                <View
                   style={{
-                    flex: 1,
-                    textAlign: 'center',
-                    textAlignVertical: 'auto',
-                    // backgroundColor: 'pink',
-                    height: '100%',
-                    fontSize: 23,
-                    padding: 15,
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    marginHorizontal: 10,
                   }}>
-                  ♥
-                </Text>
-                <Text
+                  <Img
+                    source={{
+                      uri:
+                        'https://randomwordgenerator.com/img/picture-generator/52e9d1474c56ab14f1dc8460962e33791c3ad6e04e507749772772d6944bc2_640.jpg',
+                    }}
+                    style={{
+                      width: 40,
+                      height: 40,
+                      borderRadius: 40,
+                    }}
+                  />
+                  <Text
+                    style={{color: '#E3E3E3', fontSize: 18, marginLeft: 10}}>
+                    Beautiful Views Of Nature
+                  </Text>
+                </View>
+                <Image
                   style={{
-                    flex: 1,
-                    textAlign: 'center',
-                    textAlignVertical: 'auto',
+                    width: Dimensions.get('screen').width * 0.95,
                     marginTop: 10,
-                  }}>
-                  Comment
-                </Text>
-                <Text
+                  }}
+                  uri={this.state.selecteduri}
+                />
+                <View
                   style={{
-                    flex: 1,
-                    textAlign: 'center',
-                    textAlignVertical: 'auto',
-                    marginTop: 10,
+                    flexDirection: 'row',
+                    alignContent: 'space-around',
                   }}>
-                  More
-                </Text>
-              </View>
-            </Animated.View>
-          </BlurView>
-        ) : null}
+                  <Text
+                    onLayout={this.handleMeasure('like', this.likeRef)}
+                    ref={this.likeRef}
+                    // allowFontScaling
+                    style={{
+                      flex: 1,
+                      textAlign: 'center',
+                      textAlignVertical: 'auto',
+                      // backgroundColor: 'pink',
+                      height: '100%',
+                      fontSize: 23,
+                      padding: 15,
+                    }}>
+                    <Icon name="heart" size={25} color="#E3E3E3" />
+                  </Text>
+                  <Text
+                    style={{
+                      flex: 1,
+                      textAlign: 'center',
+                      textAlignVertical: 'auto',
+                      height: '100%',
+                      fontSize: 23,
+                      padding: 15,
+                      transform: [{rotateY: '180deg'}],
+                    }}>
+                    <Ionicons
+                      name="chatbubble-outline"
+                      size={25}
+                      color="#E3E3E3"
+                    />
+                  </Text>
+                  <Text
+                    style={{
+                      flex: 1,
+                      textAlign: 'center',
+                      textAlignVertical: 'auto',
+                      height: '100%',
+                      fontSize: 23,
+                      padding: 15,
+                    }}>
+                    <Feather name="send" size={25} color="#E3E3E3" />
+                  </Text>
+                  <Text
+                    style={{
+                      flex: 1,
+                      textAlign: 'center',
+                      textAlignVertical: 'auto',
+                      height: '100%',
+                      fontSize: 23,
+                      padding: 15,
+                    }}>
+                    <Feather name="more-vertical" size={25} color="#E3E3E3" />
+                  </Text>
+                </View>
+              </Animated.View>
+            </BlurView>
+          </Animated.View>
+        ) : (
+          <Text
+            onPress={() => {
+              this.props.navigation.openDrawer();
+            }}>
+            Open
+          </Text>
+        )}
       </View>
     );
   }
